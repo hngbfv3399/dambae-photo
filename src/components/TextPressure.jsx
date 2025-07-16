@@ -180,25 +180,48 @@ const TextPressure = ({
           font-family: '${fontFamily}';
           src: url('${fontUrl}');
           font-style: normal;
+          font-display: swap;
         }
         .text-image-clip {
-          color: #000000;
+          /* fallback 컬러 먼저 설정 */
+          color: #333333;
           background-image: url('${imageUrl}');
           background-size: cover;
           background-position: center;
           background-clip: text;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
+          
+          /* 브라우저 지원하지 않을 때 fallback */
+          @supports not (background-clip: text) {
+            color: #333333;
+            -webkit-text-fill-color: initial;
+          }
         }
         .text-image-clip span {
-          color: #000000;
+          /* fallback 컬러 */
+          color: #333333;
           background-image: url('${imageUrl}');
           background-size: cover;
           background-position: center;
           background-clip: text;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
+          
+          /* 브라우저 지원하지 않을 때 fallback */
+          @supports not (background-clip: text) {
+            color: #333333;
+            -webkit-text-fill-color: initial;
+          }
         }
+        
+        /* 이미지 로딩 실패시 fallback */
+        .text-fallback {
+          color: #333333 !important;
+          -webkit-text-fill-color: #333333 !important;
+          background: none !important;
+        }
+        
         .stroke span {
           position: relative;
         }
@@ -217,7 +240,7 @@ const TextPressure = ({
           flex ? "flex justify-between" : ""
         } ${stroke ? "stroke" : ""} uppercase text-center`}
         style={{
-          fontFamily,
+          fontFamily: `'${fontFamily}', Arial, sans-serif`, // fallback 폰트 추가
           fontSize: fontSize,
           lineHeight,
           transform: `scale(1, ${scaleY})`,
