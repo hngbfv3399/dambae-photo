@@ -67,7 +67,7 @@ export default function PhotoDetailPage() {
       return
     }
 
-    if (photo.uploaded_by !== user.id) {
+    if (photo.user_id !== user.id) {
       alert('본인이 업로드한 사진만 삭제할 수 있습니다.')
       return
     }
@@ -90,7 +90,7 @@ export default function PhotoDetailPage() {
         .from('photos')
         .delete()
         .eq('id', photo.id)
-        .eq('uploaded_by', user.id)
+        .eq('user_id', user.id)
 
       if (dbError) throw dbError
 
@@ -162,7 +162,7 @@ export default function PhotoDetailPage() {
               <span>뒤로 가기</span>
             </button>
 
-            {user && photo.uploaded_by === user.id && (
+            {user && photo.user_id === user.id && (
               <button
                 onClick={handleDelete}
                 className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors custom-btn custom-btn-danger"
@@ -218,7 +218,7 @@ export default function PhotoDetailPage() {
                     <p className="text-sm break-all">{photo.file_name}</p>
                   </div>
 
-                  {user && photo.uploaded_by === user.id && (
+                  {user && photo.user_id === user.id && (
                     <div className="pt-4 border-t">
                       <p style={{ color: 'var(--color-accent)', fontWeight: 500 }}>내가 업로드한 사진</p>
                     </div>

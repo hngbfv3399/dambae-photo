@@ -16,7 +16,7 @@ export default function GalleryPage() {
   const [folders, setFolders] = useState([])
   const [unfolderPhotos, setUnfolderPhotos] = useState([])
   const [sort, setSort] = useState('created_at_desc')
-  const [expandedFolders, setExpandedFolders] = useState(new Set())
+  const [expandedFolders, setExpandedFolders] = useState(new Set(['all'])) // 기본적으로 모든 폴더 펼치기
 
   useEffect(() => {
     loadFoldersAndPhotos()
@@ -36,76 +36,36 @@ export default function GalleryPage() {
     try {
       setLoading(true)
 
-      // 1. 폴더와 그 안의 사진들 불러오기
-      const { data: foldersData, error: foldersError } = await supabase
-        .from('folders')
-        .select(`
-          *,
-          photos (
-            *
-          )
-        `)
-      
-      if (foldersError) throw foldersError
+      // 테스트: 메인페이지와 동일한 방식으로 간단하게 처리
+      const { data: photos, error } = await supabase
+        .from("photos")
+        .select("*")
+        .order('created_at', { ascending: false })
 
-      // 2. 폴더에 없는 사진들 불러오기
-      const { data: unfolderedPhotos, error: photosError } = await supabase
-        .from('photos')
-        .select('*')
-        .is('folder_id', null)
-      
-      if (photosError) throw photosError
+      if (error) throw error
 
-      // 3. 사진 URL 가져오기
-      const processPhotos = async (photos) => {
-        return await Promise.all(
-          photos.map(async (photo) => {
-            const { data: { publicUrl } } = supabase
-              .storage
-              .from('photos')
-              .getPublicUrl(photo.file_name)
-            return { ...photo, url: publicUrl }
-          })
-        )
-      }
+      console.log('🔍 Raw photos data:', photos)
 
-      // 폴더 안의 사진들 URL 처리
-      const processedFolders = await Promise.all(
-        foldersData.map(async (folder) => ({
-          ...folder,
-          photos: await processPhotos(folder.photos)
-        }))
+      // 메인페이지와 동일한 방식으로 URL 생성
+      const photosWithUrls = await Promise.all(
+        photos.map(async (photo) => {
+          const { data: { publicUrl } } = supabase
+            .storage
+            .from('photos')
+            .getPublicUrl(photo.file_name)
+          
+          console.log('🖼️ Generated URL for', photo.file_name, ':', publicUrl)
+          
+          return { ...photo, url: publicUrl }
+        })
       )
 
-      // 폴더 없는 사진들 URL 처리
-      const processedUnfolderPhotos = await processPhotos(unfolderedPhotos)
+      console.log('✅ Photos with URLs:', photosWithUrls)
 
-      // 정렬 적용
-      const sortPhotos = (photos) => {
-        return [...photos].sort((a, b) => {
-          switch (sort) {
-            case 'created_at_desc':
-              return new Date(b.created_at) - new Date(a.created_at)
-            case 'created_at_asc':
-              return new Date(a.created_at) - new Date(b.created_at)
-            case 'description_asc':
-              return (a.description || '').localeCompare(b.description || '')
-            case 'description_desc':
-              return (b.description || '').localeCompare(a.description || '')
-            default:
-              return 0
-          }
-        })
-      }
+      // 폴더 없이 모든 사진을 일반 사진으로 표시 (테스트용)
+      setFolders([])
+      setUnfolderPhotos(photosWithUrls)
 
-      // 각 폴더의 사진들 정렬
-      const sortedFolders = processedFolders.map(folder => ({
-        ...folder,
-        photos: sortPhotos(folder.photos)
-      }))
-
-      setFolders(sortedFolders)
-      setUnfolderPhotos(sortPhotos(processedUnfolderPhotos))
     } catch (error) {
       console.error('Error: ', error)
       alert('사진을 불러오는데 실패했습니다.')
