@@ -14,17 +14,17 @@ export default function SignupPage() {
     e.preventDefault()
     
     if (!email || !password || !confirmPassword) {
-      alert('모든 필드를 입력하라고❤️')
+      alert('모든 필드를 입력하라고')
       return
     }
 
     if (password !== confirmPassword) {
-      alert('비밀번호가 일치하지 않아❤️ 오빠 눈이 안 보여?❤️')
+      alert('비밀번호가 일치하지 않습니다')
       return
     }
 
     if (password.length < 6) {
-      alert('비밀번호는 6자 이상이어야 해❤️ 그것도 모르니?❤️')
+      alert('비밀번호는 6자 이상이어야 합니다.')
       return
     }
 
@@ -33,13 +33,13 @@ export default function SignupPage() {
       const { error } = await signUp(email, password)
       
       if (error) {
-        alert(`회원가입 실패❤️ ${error.message}`)
+        alert(`회원가입 실패: ${error.message}`)
       } else {
-        alert('회원가입 성공❤️ 이메일 확인하고 로그인해❤️')
+        alert('회원가입이 성공했습니다. 이메일을 확인하고 로그인해주세요.')
         navigate('/login')
       }
     } catch (error) {
-      alert(`회원가입 중 오류 발생❤️ ${error.message}`)
+      alert(`회원가입 중 오류 발생: ${error.message}`)
     } finally {
       setLoading(false)
     }
@@ -50,7 +50,7 @@ export default function SignupPage() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold">
-            회원가입❤️
+            회원가입
           </h2>
           <p className="mt-2 text-center text-sm">
             이미 계정이 있어? 
@@ -58,7 +58,7 @@ export default function SignupPage() {
               to="/login"
               className="font-medium underline ml-1"
             >
-              로그인하기❤️
+              로그인하기
             </Link>
           </p>
         </div>
@@ -120,7 +120,7 @@ export default function SignupPage() {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md focus:outline-none disabled:opacity-50"
             >
-              {loading ? '회원가입 중...' : '회원가입❤️'}
+              {loading ? '회원가입 중...' : '회원가입'}
             </button>
           </div>
         </form>

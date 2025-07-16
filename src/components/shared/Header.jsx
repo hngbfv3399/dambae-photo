@@ -187,9 +187,9 @@ export default function Header() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 relative">
+          <div className="border border-gray-300 rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 relative">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-gray-900">새 폴더 만들기</h3>
+              <h3 className="text-xl font-semibold">새 폴더 만들기</h3>
               <button
                 onClick={() => setShowModal(false)}
                 className="p-1 hover:bg-gray-100 rounded-full transition-colors"
@@ -201,7 +201,7 @@ export default function Header() {
             </div>
             
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium mb-2">
                 폴더 이름
               </label>
               <input

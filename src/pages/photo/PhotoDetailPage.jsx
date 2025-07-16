@@ -13,7 +13,7 @@ export default function PhotoDetailPage() {
 
   useEffect(() => {
     if (!id) {
-      setError('사진 ID가 없어❤️')
+      setError('사진 ID가 없습니다.')
       setLoading(false)
       return
     }
@@ -35,7 +35,7 @@ export default function PhotoDetailPage() {
 
       if (photoError) {
         if (photoError.code === 'PGRST116') {
-          setError('사진을 찾을 수 없어❤️')
+          setError('사진을 찾을 수 없습니다.')
         } else {
           throw photoError
         }
@@ -55,7 +55,7 @@ export default function PhotoDetailPage() {
 
     } catch (error) {
       console.error('Error loading photo:', error)
-      setError('사진 불러오기 실패❤️ 오빠 뭔가 잘못했나봐?❤️')
+      setError('사진을 불러오는 중 오류가 발생했습니다.')
     } finally {
       setLoading(false)
     }
@@ -63,16 +63,16 @@ export default function PhotoDetailPage() {
 
   const handleDelete = async () => {
     if (!user) {
-      alert('로그인이 필요해❤️')
+      alert('로그인이 필요합니다.')
       return
     }
 
     if (photo.uploaded_by !== user.id) {
-      alert('남의 사진은 못 지워❤️')
+      alert('본인이 업로드한 사진만 삭제할 수 있습니다.')
       return
     }
 
-    if (!confirm('정말 삭제할거야? 되돌릴 수 없어❤️')) {
+    if (!confirm('정말로 삭제하시겠습니까? 되돌릴 수 없습니다.')) {
       return
     }
 
@@ -94,12 +94,12 @@ export default function PhotoDetailPage() {
 
       if (dbError) throw dbError
 
-      alert('삭제 완료❤️')
+      alert('삭제가 완료되었습니다.')
       navigate('/gallery')
 
     } catch (error) {
       console.error('Error deleting photo:', error)
-      alert(`삭제 실패❤️ ${error.message}`)
+      alert(`삭제 실패: ${error.message}`)
     }
   }
 
@@ -108,7 +108,7 @@ export default function PhotoDetailPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-t-transparent border-gray-300 rounded-full animate-spin mx-auto mb-4"></div>
-          <p>로딩중... 오빠 기다려❤️</p>
+          <p>로딩 중...</p>
         </div>
       </div>
     )
@@ -134,7 +134,7 @@ export default function PhotoDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p style={{ fontSize: 20, marginBottom: 16 }}>사진이 없어❤️</p>
+          <p style={{ fontSize: 20, marginBottom: 16 }}>사진이 없습니다.</p>
           <Link 
             to="/gallery" 
             className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors custom-btn"
@@ -197,7 +197,7 @@ export default function PhotoDetailPage() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-1">설명</label>
-                    <p>{photo.description || '설명이 없어❤️'}</p>
+                    <p>{photo.description || '설명이 없습니다.'}</p>
                   </div>
 
                   <div>
@@ -220,7 +220,7 @@ export default function PhotoDetailPage() {
 
                   {user && photo.uploaded_by === user.id && (
                     <div className="pt-4 border-t">
-                      <p style={{ color: 'var(--color-accent)', fontWeight: 500 }}>내가 업로드한 사진❤️</p>
+                      <p style={{ color: 'var(--color-accent)', fontWeight: 500 }}>내가 업로드한 사진</p>
                     </div>
                   )}
                 </div>

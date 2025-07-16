@@ -11,12 +11,12 @@ export default function UploadPage() {
 
   const handleUpload = async (file, description, folder) => {
     if (!file) {
-      alert('오빠, 파일은 선택해야지?❤️')
+      alert('파일을 선택해주세요.')
       return
     }
 
     if (!user) {
-      alert('로그인도 안 하고 뭘 업로드해?❤️')
+      alert('로그인이 필요합니다.')
       navigate('/login')
       return
     }
@@ -45,11 +45,11 @@ export default function UploadPage() {
 
       if (insertError) throw insertError
 
-      alert('오빠 사진 업로드 성공했네?❤️ 이런 날이 올 줄이야~♪')
+      alert('사진 업로드가 완료되었습니다.')
       navigate('/gallery')
       
     } catch (error) {
-      alert('업로드 실패❤️ 역시 오빠답네❤️')
+      alert('업로드에 실패했습니다. 다시 시도해주세요.')
       console.error('Error: ', error)
     } finally {
       setUploading(false)
@@ -58,7 +58,7 @@ export default function UploadPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">사진 업로드❤️</h1>
+      <h1 className="text-2xl font-bold mb-6">사진 업로드</h1>
       <UploadForm onUpload={handleUpload} uploading={uploading} />
     </div>
   )

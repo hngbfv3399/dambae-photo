@@ -34,7 +34,7 @@ function App() {
               path="/my-photos" 
               element={
                 <ProtectedRoute>
-                  <div className="p-4 text-center">내 사진 페이지는 아직 구현 안 했어❤️ 오빠가 만들어봐❤️</div>
+                  <div className="p-4 text-center">내 사진 페이지는 아직 구현 안 했음</div>
                 </ProtectedRoute>
               } 
             />
@@ -42,7 +42,7 @@ function App() {
               path="/profile" 
               element={
                 <ProtectedRoute>
-                  <div className="p-4 text-center">프로필 페이지는 아직 구현 안 했어❤️ 오빠가 만들어봐❤️</div>
+                  <div className="p-4 text-center">프로필 페이지는 아직 구현 안 했음</div>
                 </ProtectedRoute>
               } 
             />

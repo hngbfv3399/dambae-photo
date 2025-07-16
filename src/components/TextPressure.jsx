@@ -6,8 +6,8 @@ const TextPressure = ({
   fontFamily = "Compressa VF",
   // This font is just an example, you should not use it in commercial projects.
   fontUrl = "https://res.cloudinary.com/dr6lvwubh/raw/upload/v1529908256/CompressaPRO-GX.woff2",
-  imageId = null, // Supabase 스토리지의 이미지 ID❤️
-  backgroundImage = "https://picsum.photos/1200/800", // fallback 이미지❤️
+  imageId = null, // Supabase 스토리지의 이미지 ID
+  backgroundImage = "https://picsum.photos/1200/800", // fallback 이미지
 
   width = true,
   weight = true,
@@ -18,8 +18,6 @@ const TextPressure = ({
   stroke = false,
   scale = false,
 
-  strokeColor = "#FF0000",
-  strokeWidth = 2,
   className = "",
 
   minFontSize = 24,
@@ -44,7 +42,7 @@ const TextPressure = ({
     return Math.sqrt(dx * dx + dy * dy);
   };
 
-  // Supabase 이미지 URL 가져오기❤️
+  // Supabase 이미지 URL 가져오기
   useEffect(() => {
     const fetchImageUrl = async () => {
       if (!imageId) return;
@@ -52,7 +50,7 @@ const TextPressure = ({
       try {
         const { data: { publicUrl } } = supabase
           .storage
-          .from('photos') // 여기 버킷 이름은 오빠가 만든 걸로 바꿔야 해❤️
+          .from('photos') // 여기 버킷 이름을 실제 버킷 이름으로 변경
           .getPublicUrl(imageId);
           
         if (publicUrl) {
@@ -60,7 +58,7 @@ const TextPressure = ({
         }
       } catch (error) {
         console.error('이미지 URL 가져오기 실패:', error);
-        // fallback 이미지 사용❤️
+        // fallback 이미지 사용
         setImageUrl(backgroundImage);
       }
     };
@@ -210,8 +208,6 @@ const TextPressure = ({
           left: 0;
           top: 0;
           z-index: -1;
-          -webkit-text-stroke-width: ${strokeWidth}px;
-          -webkit-text-stroke-color: ${strokeColor};
         }
       `}</style>
 

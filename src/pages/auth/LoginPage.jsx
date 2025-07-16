@@ -13,7 +13,7 @@ export default function LoginPage() {
     e.preventDefault()
     
     if (!email || !password) {
-      alert('이메일과 비밀번호를 입력하라고❤️')
+      alert('이메일과 비밀번호를 입력하세영~')
       return
     }
 
@@ -22,13 +22,13 @@ export default function LoginPage() {
       const { error } = await signIn(email, password)
       
       if (error) {
-        alert(`로그인 실패❤️ ${error.message}`)
+        alert(`로그인 실패 ${error.message}`)
       } else {
-        alert('로그인 성공❤️ 이제 사진 삭제해도 돼❤️')
+        alert('로그인 성공')
         navigate('/')
       }
     } catch (error) {
-      alert(`로그인 중 오류 발생❤️ ${error.message}`)
+      alert(`로그인 중 오류 발생 ${error.message}`)
     } finally {
       setLoading(false)
     }
@@ -39,7 +39,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold">
-            로그인❤️
+            로그인
           </h2>
           <p className="mt-2 text-center text-sm">
             계정이 없어? 
@@ -47,7 +47,7 @@ export default function LoginPage() {
               to="/signup"
               className="font-medium underline ml-1"
             >
-              회원가입하기❤️
+              회원가입하기
             </Link>
           </p>
         </div>
@@ -93,7 +93,7 @@ export default function LoginPage() {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md focus:outline-none disabled:opacity-50"
             >
-              {loading ? '로그인 중...' : '로그인❤️'}
+              {loading ? '로그인 중...' : '로그인'}
             </button>
           </div>
         </form>
