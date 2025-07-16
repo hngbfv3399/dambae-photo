@@ -187,7 +187,7 @@ export default function Header() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 relative">
+          <div className="rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 relative">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-semibold text-gray-900">새 폴더 만들기</h3>
               <button
