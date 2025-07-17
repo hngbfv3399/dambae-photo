@@ -87,7 +87,7 @@ export default function PhotoGrid({ photos, onPhotosChange }) {
                   handleDelete(photo)
                 }}
                 disabled={deletingPhotos.has(photo.id)}
-                className="absolute top-2 right-2 p-2 rounded-full shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50"
+                className="absolute top-2 right-2 p-1.5 bg-white/80 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="사진 삭제"
               >
                 {deletingPhotos.has(photo.id) ? (
