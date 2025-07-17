@@ -9,7 +9,7 @@ export default function UploadPage() {
   const { user } = useAuth()
   const [uploading, setUploading] = useState(false)
 
-  const handleUpload = async (file, description, folderId) => {
+  const handleUpload = async (file, description) => {
     if (!file) {
       alert('파일을 선택해주세요.')
       return
@@ -39,7 +39,7 @@ export default function UploadPage() {
             file_name: fileName,
             user_id: user.id,
             description: description || '',
-            folder_id: folderId || null
+            folder_id: null
           }
         ])
 
