@@ -4,10 +4,10 @@ import { useAuth } from '../../lib/AuthContext'
 import PhotoGrid from './components/PhotoGrid'
 
 const SORT_OPTIONS = [
-  { value: 'created_at_desc', label: '최신순' },
-  { value: 'created_at_asc', label: '오래된순' },
-  { value: 'description_asc', label: '설명 가나다순' },
-  { value: 'description_desc', label: '설명 역순' },
+  { value: 'created_at_desc', label: '최신순', key: 'created_at', ascending: false },
+  { value: 'created_at_asc', label: '오래된순', key: 'created_at', ascending: true },
+  { value: 'description_asc', label: '설명 가나다순', key: 'description', ascending: true },
+  { value: 'description_desc', label: '설명 역순', key: 'description', ascending: false },
 ]
 
 export default function GalleryPage() {
@@ -23,15 +23,16 @@ export default function GalleryPage() {
     try {
       setLoading(true)
 
-      const lastUnderscoreIndex = sort.lastIndexOf('_');
-      const sortKey = sort.substring(0, lastUnderscoreIndex);
-      const sortOrder = sort.substring(lastUnderscoreIndex + 1);
-      const isAscending = sortOrder === 'asc'
+      let currentSortOption = SORT_OPTIONS.find(option => option.value === sort)
+      if (!currentSortOption) {
+        // 기본 정렬값 처리
+        currentSortOption = SORT_OPTIONS[0];
+      }
 
       const { data: photosData, error } = await supabase
         .from("photos")
         .select("*")
-        .order(sortKey, { ascending: isAscending })
+        .order(currentSortOption.key, { ascending: currentSortOption.ascending })
 
       if (error) throw error
 
