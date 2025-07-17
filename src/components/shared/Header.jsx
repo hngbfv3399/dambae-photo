@@ -187,21 +187,21 @@ export default function Header() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="border border-gray-300 rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 relative">
+          <div className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 relative">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold">새 폴더 만들기</h3>
+              <h3 className="text-xl font-semibold dark:text-gray-100">새 폴더 만들기</h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
               >
-                <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
             
             <div className="mb-6">
-              <label className="block text-sm font-medium mb-2">
+              <label className="block text-sm font-medium mb-2 dark:text-gray-300">
                 폴더 이름
               </label>
               <input
@@ -210,7 +210,7 @@ export default function Header() {
                 onChange={(e) => setFolderName(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="폴더 이름을 입력하세요"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
+                className="w-full px-4 py-3 bg-white dark:bg-gray-700 text-black dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-500 transition-all outline-none placeholder-gray-400 dark:placeholder-gray-400"
                 disabled={loading}
                 autoFocus
               />
@@ -219,7 +219,7 @@ export default function Header() {
             <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
               <button 
                 onClick={() => setShowModal(false)} 
-                className="px-6 py-3 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all order-2 sm:order-1"
+                className="px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all order-2 sm:order-1"
                 disabled={loading}
               >
                 취소
