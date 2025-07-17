@@ -23,7 +23,9 @@ export default function GalleryPage() {
     try {
       setLoading(true)
 
-      const [sortKey, sortOrder] = sort.split('_')
+      const lastUnderscoreIndex = sort.lastIndexOf('_');
+      const sortKey = sort.substring(0, lastUnderscoreIndex);
+      const sortOrder = sort.substring(lastUnderscoreIndex + 1);
       const isAscending = sortOrder === 'asc'
 
       const { data: photosData, error } = await supabase
