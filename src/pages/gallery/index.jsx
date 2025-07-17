@@ -128,7 +128,6 @@ export default function GalleryPage() {
     }
   }
 
-  // Render logic...
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -142,7 +141,6 @@ export default function GalleryPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
@@ -161,7 +159,6 @@ export default function GalleryPage() {
         </div>
       </div>
 
-      {/* Content */}
       {totalPhotos === 0 ? (
         <div className="text-center py-16">
           <h3 className="text-lg font-medium">아직 사진이 없습니다</h3>
@@ -169,7 +166,6 @@ export default function GalleryPage() {
         </div>
       ) : (
         <div className="space-y-8">
-          {/* Folders */}
           {folders.map((folder) => (
             <div key={folder.id} className="rounded-xl shadow-sm border">
               <div className="p-4 border-b flex justify-between items-center">
@@ -187,7 +183,6 @@ export default function GalleryPage() {
             </div>
           ))}
 
-          {/* Uncategorized Photos */}
           {unfolderPhotos.length > 0 && (
             <div className="rounded-xl shadow-sm border">
               <div className="p-4 border-b">
