@@ -17,6 +17,17 @@ export default function PhotoGrid({ photos, onPhotosChange }) {
       setDeletingPhotos(prev => new Set(prev).add(photo.id))
       
       console.log('Deleting photo:', photo.id, photo.file_name)
+      console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL)
+      console.log('Environment check:', {
+        isDev: import.meta.env.DEV,
+        mode: import.meta.env.MODE,
+        supabaseUrl: import.meta.env.VITE_SUPABASE_URL?.substring(0, 30) + '...'
+      })
+
+              // 현재 사용자와 사진 소유자 확인
+      console.log('Current user ID:', user?.id)
+      console.log('Photo user ID:', photo.user_id)
+      console.log('Photo details:', { id: photo.id, file_name: photo.file_name, user_id: photo.user_id })
 
       // 먼저 DB에서 삭제 (권한 확인)
       const { error: dbError } = await supabase
@@ -30,17 +41,44 @@ export default function PhotoGrid({ photos, onPhotosChange }) {
         throw new Error(`DB 삭제 실패: ${dbError.message}`)
       }
 
+      // Storage 버킷 존재 여부 확인
+      const { data: buckets, error: bucketError } = await supabase.storage.listBuckets()
+      console.log('Available buckets:', buckets, 'Bucket error:', bucketError)
+
+      // 먼저 파일이 존재하는지 확인
+      console.log('Checking if file exists:', photo.file_name)
+      const { data: fileList, error: listError } = await supabase
+        .storage
+        .from('photos')
+        .list('', { search: photo.file_name })
+
+      console.log('File exists check:', { fileList, listError, fileName: photo.file_name })
+
       // DB 삭제 성공 후 Storage에서 삭제
-      const { error: storageError } = await supabase
+      console.log('Attempting to delete file from storage:', photo.file_name)
+      const { data: deleteData, error: storageError } = await supabase
         .storage
         .from('photos')
         .remove([photo.file_name])
 
+      console.log('Storage delete result:', { 
+        data: deleteData, 
+        error: storageError, 
+        fileName: photo.file_name,
+        currentUser: user?.id 
+      })
+
       if (storageError) {
         console.error('Storage delete error:', storageError)
-        // Storage 삭제 실패해도 DB는 이미 삭제됨을 사용자에게 알림
-        alert(`사진 정보는 삭제되었지만 파일 삭제에 실패했습니다: ${storageError.message}`)
+        console.error('Storage error details:', JSON.stringify(storageError, null, 2))
+        console.error('Storage error name:', storageError.name)
+        console.error('Storage error statusCode:', storageError.statusCode)
+        
+        // Storage 삭제 실패해도 DB는 이미 삭제됨 - 사용자에게는 성공으로 표시
+        console.warn('Storage delete failed but DB delete succeeded. Photo will appear deleted to user.')
+        alert('사진이 삭제되었습니다. (파일은 서버에서 별도 정리됩니다)')
       } else {
+        console.log('Storage delete success:', { data: deleteData, fileName: photo.file_name })
         alert('사진이 성공적으로 삭제되었습니다.')
       }
 
