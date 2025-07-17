@@ -3,20 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { useAuth } from '../../../lib/AuthContext'
 
-export default function UploadForm() {
-  const navigate = useNavigate()
-  const { user } = useAuth()
+export default function UploadForm({ onUpload, uploading }) {
   const [file, setFile] = useState(null)
   const [description, setDescription] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [folders, setFolders] = useState([])
-  const [selectedFolder, setSelectedFolder] = useState('')
   const [preview, setPreview] = useState(null)
   const [dragActive, setDragActive] = useState(false)
-
-  useEffect(() => {
-    loadFolders()
-  }, [])
 
   useEffect(() => {
     if (file) {
@@ -27,22 +18,6 @@ export default function UploadForm() {
       setPreview(null)
     }
   }, [file])
-
-  const loadFolders = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('folders')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-      
-      if (error) throw error
-      setFolders(data)
-    } catch (error) {
-      console.error('폴더 목록 불러오기 실패:', error)
-      alert('폴더 목록을 불러오는데 실패했습니다.')
-    }
-  }
 
   const handleDrag = (e) => {
     e.preventDefault()
@@ -93,46 +68,10 @@ export default function UploadForm() {
     return true
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
-    
-    if (!validateForm()) return
-
-    try {
-      setLoading(true)
-      
-      // 파일 업로드
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
-      
-      const { error: uploadError } = await supabase.storage
-        .from('photos')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false
-        })
-      
-      if (uploadError) throw uploadError
-
-      // DB에 저장
-      const { error: insertError } = await supabase
-        .from('photos')
-        .insert([{
-          file_name: fileName,
-          description: description.trim(),
-          folder_id: selectedFolder || null,
-          user_id: user.id
-        }])
-      
-      if (insertError) throw insertError
-
-      alert('업로드가 완료되었습니다.')
-      navigate('/gallery')
-    } catch (error) {
-      console.error('업로드 실패:', error)
-      alert('업로드에 실패했습니다. 다시 시도해주세요.')
-    } finally {
-      setLoading(false)
+    if (validateForm()) {
+      onUpload(file, description)
     }
   }
 
@@ -244,38 +183,30 @@ export default function UploadForm() {
               </div>
             </div>
 
-            {/* Folder Selection */}
+            {/* Folder Selection (Temporarily Disabled) */}
+            {/*
             <div className="space-y-2">
               <label className="block text-sm font-medium">
                 폴더 선택 <span className="text-sm font-normal">(선택사항)</span>
               </label>
               <select
-                value={selectedFolder}
-                onChange={(e) => setSelectedFolder(e.target.value)}
+                // value={selectedFolder}
+                // onChange={(e) => setSelectedFolder(e.target.value)}
                 className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">폴더 없음 (일반 사진)</option>
-                {folders.map((folder) => (
-                  <option key={folder.id} value={folder.id}>
-                    {folder.name}
-                  </option>
-                ))}
               </select>
-              {folders.length === 0 && (
-                <p className="text-xs">
-                  새 폴더는 상단 메뉴에서 만들 수 있습니다
-                </p>
-              )}
             </div>
+            */}
 
             {/* Submit Button */}
             <div className="pt-4">
               <button
                 type="submit"
-                disabled={loading || !file}
+                disabled={uploading || !file}
                 className="w-full py-3 px-4 border border-transparent text-sm font-medium rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md transition-all"
               >
-                {loading ? (
+                {uploading ? (
                   <div className="flex items-center justify-center">
                     <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin mr-2"></div>
                     업로드 중...
