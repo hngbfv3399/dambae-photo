@@ -17,6 +17,9 @@ export default function GalleryPage() {
   const [unfolderPhotos, setUnfolderPhotos] = useState([])
   const [sort, setSort] = useState('created_at_desc')
   const [expandedFolders, setExpandedFolders] = useState(new Set())
+  const [showCreateFolder, setShowCreateFolder] = useState(false)
+  const [newFolderName, setNewFolderName] = useState('')
+  const [creatingFolder, setCreatingFolder] = useState(false)
 
   useEffect(() => {
     if (user) {
@@ -108,23 +111,89 @@ export default function GalleryPage() {
 
     try {
       const folderToDelete = folders.find(f => f.id === folderId);
-      if (!folderToDelete) return;
+      if (!folderToDelete) {
+        alert('폴더를 찾을 수 없습니다.')
+        return;
+      }
 
-      // Delete photos from storage
+      console.log('Deleting folder:', folderId, 'with', folderToDelete.photos.length, 'photos')
+
+      // 먼저 폴더 안의 사진들을 DB에서 삭제 (권한 확인)
       if (folderToDelete.photos.length > 0) {
+        const { error: photosError } = await supabase
+          .from('photos')
+          .delete()
+          .eq('folder_id', folderId)
+          .eq('user_id', user.id);
+
+        if (photosError) {
+          console.error('Photos delete error:', photosError)
+          throw new Error(`사진 삭제 실패: ${photosError.message}`)
+        }
+
+        // DB에서 사진 삭제 성공 후 Storage에서 파일 삭제
         const fileNames = folderToDelete.photos.map(p => p.file_name);
-        await supabase.storage.from('photos').remove(fileNames);
+        const { error: storageError } = await supabase.storage.from('photos').remove(fileNames);
+        
+        if (storageError) {
+          console.error('Storage delete error:', storageError)
+          // Storage 삭제 실패해도 계속 진행 (폴더는 삭제)
+          console.warn('일부 파일 삭제에 실패했지만 계속 진행합니다.')
+        }
       }
       
-      // Delete folder from DB (photos will be deleted by CASCADE)
-      const { error } = await supabase.from('folders').delete().eq('id', folderId);
-      if (error) throw error;
+      // 폴더 삭제 (본인 폴더만 삭제 가능하도록 추가 확인)
+      const { error: folderError } = await supabase
+        .from('folders')
+        .delete()
+        .eq('id', folderId)
+        .eq('user_id', user.id);
 
-      alert('폴더가 삭제되었습니다.')
-      loadFoldersAndPhotos();
+      if (folderError) {
+        console.error('Folder delete error:', folderError)
+        throw new Error(`폴더 삭제 실패: ${folderError.message}`)
+      }
+
+      alert('폴더가 성공적으로 삭제되었습니다.')
+      await loadFoldersAndPhotos();
     } catch (error) {
       console.error('폴더 삭제 오류:', error)
-      alert('폴더 삭제에 실패했습니다.')
+      alert(`폴더 삭제에 실패했습니다: ${error.message || '알 수 없는 오류'}`)
+    }
+  }
+
+  const handleCreateFolder = async () => {
+    if (!newFolderName.trim()) {
+      alert('폴더 이름을 입력해주세요.')
+      return
+    }
+
+    try {
+      setCreatingFolder(true)
+      
+      const { error } = await supabase
+        .from('folders')
+        .insert([
+          {
+            name: newFolderName.trim(),
+            user_id: user.id
+          }
+        ])
+
+      if (error) {
+        console.error('Folder creation error:', error)
+        throw new Error(`폴더 생성 실패: ${error.message}`)
+      }
+
+      alert('폴더가 성공적으로 생성되었습니다.')
+      setNewFolderName('')
+      setShowCreateFolder(false)
+      await loadFoldersAndPhotos()
+    } catch (error) {
+      console.error('폴더 생성 오류:', error)
+      alert(`폴더 생성에 실패했습니다: ${error.message || '알 수 없는 오류'}`)
+    } finally {
+      setCreatingFolder(false)
     }
   }
 
@@ -147,16 +216,59 @@ export default function GalleryPage() {
             <h1 className="text-2xl sm:text-3xl font-bold">갤러리</h1>
             <p className="text-sm sm:text-base mt-1 text-gray-500">총 {totalPhotos}개의 사진</p>
           </div>
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
-          >
-            {SORT_OPTIONS.map(option => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <button
+              onClick={() => setShowCreateFolder(true)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+            >
+              폴더 생성
+            </button>
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+            >
+              {SORT_OPTIONS.map(option => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </div>
         </div>
+
+        {/* 폴더 생성 입력창 */}
+        {showCreateFolder && (
+          <div className="mt-4 p-4 border rounded-lg bg-gray-50">
+            <h3 className="text-lg font-medium mb-3">새 폴더 만들기</h3>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newFolderName}
+                onChange={(e) => setNewFolderName(e.target.value)}
+                placeholder="폴더 이름을 입력하세요"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                onKeyPress={(e) => e.key === 'Enter' && handleCreateFolder()}
+                disabled={creatingFolder}
+              />
+              <button
+                onClick={handleCreateFolder}
+                disabled={creatingFolder || !newFolderName.trim()}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {creatingFolder ? '생성 중...' : '생성'}
+              </button>
+              <button
+                onClick={() => {
+                  setShowCreateFolder(false)
+                  setNewFolderName('')
+                }}
+                disabled={creatingFolder}
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 transition-colors"
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {totalPhotos === 0 ? (

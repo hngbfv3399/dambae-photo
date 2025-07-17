@@ -9,7 +9,7 @@ export default function UploadPage() {
   const { user } = useAuth()
   const [uploading, setUploading] = useState(false)
 
-  const handleUpload = async (file, description) => {
+  const handleUpload = async (file, description, folderId = null) => {
     if (!file) {
       alert('파일을 선택해주세요.')
       return
@@ -24,13 +24,18 @@ export default function UploadPage() {
     try {
       setUploading(true)
 
+      console.log('Uploading to folder:', folderId || 'none')
+
       const fileExt = file.name.split('.').pop()
       const fileName = `${Math.random()}.${fileExt}`
       const { error: uploadError } = await supabase.storage
         .from('photos')
         .upload(fileName, file)
 
-      if (uploadError) throw uploadError
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError)
+        throw new Error(`파일 업로드 실패: ${uploadError.message}`)
+      }
 
       const { error: insertError } = await supabase
         .from('photos')
@@ -39,18 +44,21 @@ export default function UploadPage() {
             file_name: fileName,
             user_id: user.id,
             description: description || '',
-            folder_id: null
+            folder_id: folderId
           }
         ])
 
-      if (insertError) throw insertError
+      if (insertError) {
+        console.error('DB insert error:', insertError)
+        throw new Error(`데이터 저장 실패: ${insertError.message}`)
+      }
 
       alert('사진 업로드가 완료되었습니다.')
       navigate('/gallery')
       
     } catch (error) {
-      alert('업로드에 실패했습니다. 다시 시도해주세요.')
-      console.error('Error: ', error)
+      console.error('Upload error:', error)
+      alert(`업로드에 실패했습니다: ${error.message || '알 수 없는 오류'}`)
     } finally {
       setUploading(false)
     }

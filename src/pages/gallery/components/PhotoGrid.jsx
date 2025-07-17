@@ -15,25 +15,43 @@ export default function PhotoGrid({ photos, onPhotosChange }) {
 
     try {
       setDeletingPhotos(prev => new Set(prev).add(photo.id))
+      
+      console.log('Deleting photo:', photo.id, photo.file_name)
 
+      // 먼저 DB에서 삭제 (권한 확인)
+      const { error: dbError } = await supabase
+        .from('photos')
+        .delete()
+        .eq('id', photo.id)
+        .eq('user_id', user.id) // 본인 사진만 삭제 가능하도록 추가 확인
+
+      if (dbError) {
+        console.error('DB delete error:', dbError)
+        throw new Error(`DB 삭제 실패: ${dbError.message}`)
+      }
+
+      // DB 삭제 성공 후 Storage에서 삭제
       const { error: storageError } = await supabase
         .storage
         .from('photos')
         .remove([photo.file_name])
 
-      if (storageError) throw storageError
+      if (storageError) {
+        console.error('Storage delete error:', storageError)
+        // Storage 삭제 실패해도 DB는 이미 삭제됨을 사용자에게 알림
+        alert(`사진 정보는 삭제되었지만 파일 삭제에 실패했습니다: ${storageError.message}`)
+      } else {
+        alert('사진이 성공적으로 삭제되었습니다.')
+      }
 
-      const { error: dbError } = await supabase
-        .from('photos')
-        .delete()
-        .eq('id', photo.id)
-
-      if (dbError) throw dbError
-
-      onPhotosChange && onPhotosChange()
+      // 갤러리 새로고침
+      if (onPhotosChange) {
+        await onPhotosChange()
+      }
+      
     } catch (error) {
       console.error('Error deleting photo:', error)
-      alert('삭제에 실패했습니다. 다시 시도해주세요.')
+      alert(`삭제에 실패했습니다: ${error.message || '알 수 없는 오류'}`)
     } finally {
       setDeletingPhotos(prev => {
         const newSet = new Set(prev)

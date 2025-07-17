@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { useAuth } from '../../../lib/AuthContext'
 
 export default function UploadForm({ onUpload, uploading }) {
+  const { user } = useAuth()
   const [file, setFile] = useState(null)
   const [description, setDescription] = useState('')
   const [preview, setPreview] = useState(null)
   const [dragActive, setDragActive] = useState(false)
+  const [selectedFolder, setSelectedFolder] = useState('')
+  const [folders, setFolders] = useState([])
 
   useEffect(() => {
     if (file) {
@@ -18,6 +20,27 @@ export default function UploadForm({ onUpload, uploading }) {
       setPreview(null)
     }
   }, [file])
+
+  useEffect(() => {
+    if (user) {
+      loadFolders()
+    }
+  }, [user])
+
+  const loadFolders = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('folders')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setFolders(data || [])
+    } catch (error) {
+      console.error('Error loading folders:', error)
+    }
+  }
 
   const handleDrag = (e) => {
     e.preventDefault()
@@ -71,7 +94,7 @@ export default function UploadForm({ onUpload, uploading }) {
   const handleSubmit = (e) => {
     e.preventDefault()
     if (validateForm()) {
-      onUpload(file, description)
+      onUpload(file, description, selectedFolder || null)
     }
   }
 
@@ -183,21 +206,22 @@ export default function UploadForm({ onUpload, uploading }) {
               </div>
             </div>
 
-            {/* Folder Selection (Temporarily Disabled) */}
-            {/*
+            {/* Folder Selection */}
             <div className="space-y-2">
               <label className="block text-sm font-medium">
                 폴더 선택 <span className="text-sm font-normal">(선택사항)</span>
               </label>
               <select
-                // value={selectedFolder}
-                // onChange={(e) => setSelectedFolder(e.target.value)}
+                value={selectedFolder}
+                onChange={(e) => setSelectedFolder(e.target.value)}
                 className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">폴더 없음 (일반 사진)</option>
+                {folders.map(folder => (
+                  <option key={folder.id} value={folder.id}>{folder.name}</option>
+                ))}
               </select>
             </div>
-            */}
 
             {/* Submit Button */}
             <div className="pt-4">
